@@ -1352,21 +1352,6 @@ portable_mode (void)
 #endif
 }
 
-<<<<<<< HEAD
-=======
-int
-unity_mode (void)
-{
-#if defined(G_OS_UNIX) && !defined(USE_APPINDICATOR)
-	const char *env = g_getenv("XDG_CURRENT_DESKTOP");
-	if (env && (strcmp (env, "Unity") == 0
-			|| strcmp (env, "Pantheon") == 0))
-		return 1;
-#endif
-	return 0;
-}
-
->>>>>>> Initial AppIndicator support
 char *
 encode_sasl_pass_plain (char *user, char *pass)
 {
