@@ -397,7 +397,7 @@ tray_stop_flash (void)
 	}
 }
 
-#endif 
+#endif
 
 gboolean
 tray_toggle_visibility (gboolean force_hide)
@@ -707,7 +707,7 @@ make_menu ()
 	menu_add_plugin_items (menu, "\x5$TRAY", NULL);
 	tray_make_item (menu, NULL, tray_menu_quit_cb, NULL);
 	mg_create_icon_item (_("_Quit"), GTK_STOCK_QUIT, menu, tray_menu_quit_cb, NULL);
-	
+
 	return GTK_MENU (menu);
 }
 
@@ -753,7 +753,7 @@ tray_message_cb (char *word[], void *userdata)
 	if (/*tray_status == TS_MESSAGE ||*/ tray_status == TS_HIGHLIGHT)
 		return HEXCHAT_EAT_NONE;
 #endif
-		
+
 	if (prefs.hex_input_tray_chans)
 	{
 		tray_set_flash (ICON_MSG);
@@ -878,7 +878,7 @@ tray_apply_setup (void)
 	}
 	else
 	{
-		if (prefs.hex_gui_tray && !unity_mode ())
+		if (prefs.hex_gui_tray)
 			tray_init ();
 	}
 }
@@ -912,7 +912,7 @@ tray_plugin_init (hexchat_plugin *plugin_handle, char **plugin_name,
 
 	hexchat_hook_print (ph, "Focus Window", -1, tray_focus_cb, NULL);
 
-	if (prefs.hex_gui_tray && !unity_mode ())
+	if (prefs.hex_gui_tray)
 		tray_init ();
 
 	return 1;       /* return 1 for success */
