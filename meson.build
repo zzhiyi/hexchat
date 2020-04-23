@@ -81,6 +81,20 @@ if libssl_dep.found()
   )
 endif
 
+enable_appindicator = get_option('with-appindicator')
+if enable_appindicator
+  appindicator_dep = dependency('appindicator-0.1')
+endif
+
+
+if enable_appindicator
+  dbusmenu_dep = dependency('dbusmenu-glib-0.4', version: '>= 16.04.0')
+  config_h.set10('USE_APPINDICATOR', true)
+else
+  config_h.set('USE_APPINDICATOR', false)
+endif
+
+
 configure_file(output: 'config.h', configuration: config_h)
 config_h_include = include_directories('.')
 

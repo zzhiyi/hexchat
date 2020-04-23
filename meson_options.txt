@@ -33,6 +33,9 @@ option('install-appdata', type: 'boolean',
 option('install-plugin-metainfo', type: 'boolean', value: false,
   description: 'Installs metainfo files for enabled plugins, useful when distros create split packages'
 )
+option('with-appindicator', type: 'boolean',
+  description: 'Build with lib(ayatana-)appindicator support in addition to xembed systray support.'
+)
 
 # Plugins
 option('with-checksum', type: 'boolean',

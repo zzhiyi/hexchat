@@ -56,6 +56,12 @@ else
   hexchat_gtk_sources += 'notifications/notification-freedesktop.c'
 endif
 
+if enable_appindicator
+  hexchat_gtk_deps += appindicator_dep
+  hexchat_gtk_deps += dbusmenu_dep
+endif
+
+
 iso_codes = dependency('iso-codes', required: false)
 if iso_codes.found()
   hexchat_gtk_sources += 'sexy-iso-codes.c'
