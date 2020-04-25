@@ -391,8 +391,9 @@ fe_tray_set_icon (feicon icon)
 static void
 tray_set_flash (const char *icon)
 {
-	if (sticon)
+	if (sticon && icon)
 	{
+		app_indicator_set_attention_icon_full (sticon, icon, "");
 		app_indicator_set_status (sticon, APP_INDICATOR_STATUS_ATTENTION);
 	}
 }
@@ -725,7 +726,6 @@ tray_init (void)
 {
 	sticon = app_indicator_new ("hexchat", ICON_NORMAL, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 	app_indicator_set_status (sticon, APP_INDICATOR_STATUS_ACTIVE);
-	app_indicator_set_attention_icon_full (sticon, ICON_HILIGHT, "");
 	app_indicator_set_menu (sticon, make_menu ());
 }
 #endif /* End AppIndicator */
@@ -734,7 +734,7 @@ static int
 tray_hilight_cb (char *word[], void *userdata)
 {
 	/*if (tray_status == TS_HIGHLIGHT)
-		return HEXCHAT_EAT_NONE;*/
+		return HEXCHAT_EAT_NONE; */
 
 	if (prefs.hex_input_tray_hilight)
 	{
