@@ -273,7 +273,12 @@ fe_tray_set_flash (const char *filename1, const char *filename2, int tout)
 
 	if (tout == -1)
 		tout = TIMEOUT;
-#if 0
+/* libappindicator doesn't support filenames for icons normally.*/
+/* if someone wants to implement this electron apps use a workaround */
+/* that doesn't quite fit the standard, we could also attempt to convert */
+/* the other alternative could be to try and guess a fdo standard icon name */
+/* from the file name*/
+#ifndef USE_APPINDICATOR
 	custom_icon1 = gdk_pixbuf_new_from_file (filename1, NULL);
 	if (filename2)
 		custom_icon2 = gdk_pixbuf_new_from_file (filename2, NULL);
@@ -320,8 +325,12 @@ fe_tray_set_file (const char *filename)
 
 	if (filename)
 	{
-#if 0
-		custom_icon1 = gdk_pixbuf_new_from_file (filename, NULL);
+/* libappindicator doesn't support filenames for icons normally.*/
+/* if someone wants to implement this electron apps use a workaround */
+/* that doesn't quite fit the standard, we could also attempt to convert */
+/* the other alternative could be to try and guess a fdo standard icon name */
+/* from the file name*/
+#ifndef USE_APPINDICATOR		custom_icon1 = gdk_pixbuf_new_from_file (filename, NULL);
 		gtk_status_icon_set_from_pixbuf (sticon, custom_icon1);
 		tray_status = TS_CUSTOM;
 #endif
