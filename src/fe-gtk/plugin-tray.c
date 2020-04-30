@@ -44,26 +44,28 @@ typedef enum	/* current icon status */
 	TS_MESSAGE,
 	TS_HIGHLIGHT,
 	TS_FILEOFFER,
+	TS_PRIVMSG,
 	TS_CUSTOM /* plugin */
 } TrayStatus;
 
 #define ICON_NORMAL "hexchat-tray"
-#define ICON_MSG "hexchat-tray-message"
+#define ICON_PRIVMSG "hexchat-tray-message"
 #define ICON_HILIGHT "hexchat-tray-hilight"
 #define ICON_FILE "hexchat-tray-fileoffer"
+#define ICON_MESSAGE "hexchat-tray-unread"
 #define TIMEOUT 500
 
 static hexchat_plugin *ph;
 
-#ifdef USE_APPINDICATOR
+static TrayStatus tray_status;
 
+#ifdef USE_APPINDICATOR
 static AppIndicator *sticon;
 
 #else
 
 static GtkStatusIcon *sticon;
 static gint flash_tag;
-static TrayStatus tray_status;
 #ifdef WIN32
 static guint tray_menu_timer;
 static gint64 tray_menu_inactivetime;
@@ -303,8 +305,10 @@ fe_tray_set_icon (feicon icon)
 	case FE_ICON_NORMAL:
 		break;
 	case FE_ICON_MESSAGE:
+		tray_set_flash (ICON_MESSAGE);
+		break;
 	case FE_ICON_PRIVMSG:
-		tray_set_flash (ICON_MSG);
+		tray_set_flash (ICON_PRIVMSG);
 		break;
 	case FE_ICON_HIGHLIGHT:
 		tray_set_flash (ICON_HILIGHT);
@@ -399,10 +403,22 @@ tray_set_flash (const char *icon)
 }
 
 static void
+tray_set_nonflash (const char *icon)
+{
+	if (sticon && icon)
+	{
+		app_indicator_set_icon_full (sticon, icon, "");
+		app_indicator_set_status (sticon, APP_INDICATOR_STATUS_ACTIVE);
+	}
+}
+
+static void
 tray_stop_flash (void)
 {
+	tray_status = TS_NONE;
 	if (sticon)
 	{
+		app_indicator_set_icon_full (sticon, ICON_NORMAL, "");
 		app_indicator_set_status (sticon, APP_INDICATOR_STATUS_ACTIVE);
 	}
 }
@@ -733,12 +749,13 @@ tray_init (void)
 static int
 tray_hilight_cb (char *word[], void *userdata)
 {
-	/*if (tray_status == TS_HIGHLIGHT)
-		return HEXCHAT_EAT_NONE; */
+	if (tray_status == TS_HIGHLIGHT || tray_status == TS_PRIVMSG || tray_status == TS_FILEOFFER)
+		return HEXCHAT_EAT_NONE;
 
 	if (prefs.hex_input_tray_hilight)
 	{
 		tray_set_flash (ICON_HILIGHT);
+		tray_status = TS_HIGHLIGHT;
 
 #ifndef USE_APPINDICATOR
 		/* FIXME: hides any previous private messages */
@@ -758,14 +775,13 @@ tray_hilight_cb (char *word[], void *userdata)
 static int
 tray_message_cb (char *word[], void *userdata)
 {
-#ifndef USE_APPINDICATOR
-	if (/*tray_status == TS_MESSAGE ||*/ tray_status == TS_HIGHLIGHT)
+	if (tray_status == TS_MESSAGE || tray_status == TS_HIGHLIGHT || tray_status == TS_PRIVMSG || tray_status == TS_FILEOFFER)
 		return HEXCHAT_EAT_NONE;
-#endif
 
 	if (prefs.hex_input_tray_chans)
 	{
-		tray_set_flash (ICON_MSG);
+		tray_set_nonflash (ICON_MESSAGE);
+		tray_status = TS_MESSAGE;
 
 #ifndef USE_APPINDICATOR
 		tray_pub_count++;
@@ -794,7 +810,8 @@ tray_priv (char *from, char *text)
 
 	if (prefs.hex_input_tray_priv)
 	{
-		tray_set_flash (ICON_MSG);
+		tray_set_flash (ICON_PRIVMSG);
+		tray_status = TS_PRIVMSG;
 
 #ifndef USE_APPINDICATOR
 		tray_priv_count++;
@@ -830,8 +847,8 @@ tray_dcc_cb (char *word[], void *userdata)
 {
 	const char *network;
 
-/*	if (tray_status == TS_FILEOFFER)
-		return HEXCHAT_EAT_NONE;*/
+	if (tray_status == TS_FILEOFFER)
+		return HEXCHAT_EAT_NONE;
 
 	network = hexchat_get_info (ph, "network");
 	if (!network)
@@ -840,6 +857,7 @@ tray_dcc_cb (char *word[], void *userdata)
 	if (prefs.hex_input_tray_priv && (!prefs.hex_away_omit_alerts || tray_find_away_status () != 1))
 	{
 		tray_set_flash (ICON_FILE);
+		tray_status = TS_FILEOFFER;
 
 #ifndef USE_APPINDICATOR
 		tray_file_count++;
